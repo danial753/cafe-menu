@@ -1,0 +1,24 @@
+// تنظیمات Cloudflare Workers (Static Assets + API روی همین Worker)
+// نکته: قاعده‌ی «/* /index.html 200» در _redirects با Workers خطای «حلقه‌ی بی‌نهایت» می‌دهد؛
+// فالبک SPA را با not_found_handling تعریف می‌کنیم.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cafe-menu",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-01-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // فقط درخواست‌های API اول به Worker بروند، بقیه مستقیم از CDN
+    "run_worker_first": ["/api/*"]
+  },
+  // مخزن داده: منو و اطلاعات کافه اینجا نگه داشته می‌شوند تا بین همه‌ی دستگاه‌ها مشترک باشد
+  "durable_objects": {
+    "bindings": [{ "name": "CAFE", "class_name": "CafeStore" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CafeStore"] }],
+  "observability": {
+    "enabled": true
+  }
+}

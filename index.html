@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#F6EEE4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#140F0C" media="(prefers-color-scheme: dark)" />
+    <meta name="description" content="منوی دیجیتال کافه — مشاهده‌ی منو و قیمت‌ها با اسکن QR کد" />
+    <title>کافه رُست | منوی دیجیتال</title>
+
+    <!-- فونت وزیرمتن -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%E2%98%95%3C/text%3E%3C/svg%3E"
+    />
+    <script type="module" src="/src/main.jsx"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- اگر برنامه در چند ثانیه بالا نیامد (فایل JS پیدا نشد / خطای شبکه)،
+         به‌جای «صفحه سفید» یک پیام فارسی و قابل‌فهم نشان می‌دهد. -->
+    <div id="boot-fallback" hidden>
+      <div class="boot-card">
+        <div class="boot-emoji">☕</div>
+        <h1>منو بالا نیامد</h1>
+        <p>فایل‌های برنامه دانلود نشدند. معمولاً یعنی نسخه‌ی منتشرشده با فایل‌های سایت هم‌خوان نیست.</p>
+        <ol>
+          <li>صفحه را با <b>Ctrl+F5</b> (یا پاک کردن کش) دوباره باز کنید.</li>
+          <li>آدرس <code id="boot-health">/api/health</code> را در مرورگر باز کنید؛ باید <code>{"ok":true}</code> ببینید.</li>
+          <li>اگر باز هم سفید بود، در Cloudflare یک <b>Retry deployment</b> با پاک کردن کش بزنید.</li>
+        </ol>
+        <pre id="boot-error" hidden></pre>
+      </div>
+    </div>
+
+    <style>
+      #boot-fallback {
+        position: fixed; inset: 0; z-index: 9999;
+        display: grid; place-items: center; padding: 24px;
+        background: #f6eee4; color: #2c1d13; direction: rtl;
+        font-family: Vazirmatn, Tahoma, system-ui, sans-serif;
+      }
+      #boot-fallback[hidden] { display: none; }
+      .boot-card { max-width: 420px; text-align: center; }
+      .boot-emoji { font-size: 40px; }
+      .boot-card h1 { font-size: 20px; margin: 8px 0 10px; }
+      .boot-card p { font-size: 14px; line-height: 1.9; color: #6b5140; margin: 0 0 12px; }
+      .boot-card ol { text-align: start; font-size: 13px; line-height: 2; color: #5b4433; padding-inline-start: 18px; margin: 0; }
+      .boot-card code { background: #efe0cd; padding: 1px 5px; border-radius: 5px; font-size: 12px; }
+      #boot-error { direction: ltr; text-align: left; font-size: 11px; background: #2c1d13; color: #ffd9b0; padding: 10px; border-radius: 10px; overflow: auto; max-height: 130px; }
+    </style>
+
+    <script>
+      (function () {
+        var shown = false;
+        function showBootError(message) {
+          if (shown) return;
+          shown = true;
+          var box = document.getElementById('boot-fallback');
+          if (!box) return;
+          box.hidden = false;
+          if (message) {
+            var pre = document.getElementById('boot-error');
+            if (pre) {
+              pre.hidden = false;
+              pre.textContent = message;
+            }
+          }
+        }
+        // خطای بارگذاری فایل‌ها (مثلاً وقتی JS با نوع اشتباه سرو شود)
+        window.addEventListener('error', function (event) {
+          var target = event.target;
+          if (window.__cafeBooted) return; // برنامه بالا آمده؛ خطای فایل جانبی نباید رویش بیفتد
+          if (target && (target.tagName === 'SCRIPT' || target.tagName === 'LINK')) {
+            var url = target.src || target.href || '';
+            // فقط فایل‌های خودِ سایت؛ فونت گوگل یا CDN خارجی (مثلاً فیلتر/کند) نباید برنامه‌ی سالم را بپوشاند
+            if (url.indexOf(window.location.origin) !== 0) return;
+            showBootError('failed to load: ' + url);
+          }
+        }, true);
+        // اگر تا ۲۰ ثانیه برنامه اجرا نشد (اینترنت خیلی کند/قطع)؛ پیام با بالا آمدن برنامه مخفی می‌شود
+        window.__cafeBootTimer = setTimeout(function () {
+          var root = document.getElementById('root');
+          if (!window.__cafeBooted && (!root || root.childElementCount === 0)) showBootError('');
+        }, 20000);
+      })();
+    </script>
+  </body>
+</html>

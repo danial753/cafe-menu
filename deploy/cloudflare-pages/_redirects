@@ -1,0 +1,4 @@
+# فقط برای «Cloudflare Pages → Direct Upload» لازم است.
+# این فایل را داخل پوشه‌ی dist کپی کنید (کنار index.html) و بعد آپلود کنید.
+# برای Workers (wrangler deploy) از این فایل استفاده نکنید؛ wrangler.jsonc کافی است.
+/admin /index.html 200
